@@ -1,0 +1,14 @@
+# Imagens e discos virtuais gerados localmente
+*.tar
+*.tar.xz
+*.tar.gz
+*.wsl
+*.vhdx
+*.iso
+
+# Arquivos temporários e de sistema
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
