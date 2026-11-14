@@ -101,7 +101,7 @@ wsl -d amazonlinux-2023
 
 ---
 
-## 4. Particularidades e Troubleshooting do Amazon Linux 2023 no WSL 2
+## 3. Particularidades e Troubleshooting do Amazon Linux 2023 no WSL 2
 
 * **Erro `wsl: Processing /etc/fstab with mount -a failed` e `Failed to translate 'C:\...'`:**
   * **Causa:** A imagem OCI `amazonlinux:2023` vem sem o arquivo `/etc/fstab`. Durante o boot, o WSL executa `mount -a`, falha por ausência do arquivo, aborta a montagem do drive `C:\` em `/mnt/c` e falha ao traduzir as variáveis de ambiente `PATH` herdadas do Windows.
@@ -113,7 +113,7 @@ wsl -d amazonlinux-2023
 
 ---
 
-## 5. Checagem Final de Auditoria
+## 4. Checagem Final de Auditoria
 
 Após reiniciar (`wsl --terminate amazonlinux-2023`), execute o script de checagem final ou valide manualmente:
 

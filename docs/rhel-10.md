@@ -7,23 +7,16 @@ Laboratório de administração Linux com Red Hat Enterprise Linux no Windows Su
 
 ## Índice
 
-1. [Visão Geral](#visão-geral)
-2. [Pré-requisitos](#pré-requisitos)
-3. [Passo 1 — Instalar o WSL2 no Windows](#passo-1-instalar-o-wsl2-no-windows)
-4. [Passo 2 — Criar conta desenvolvedor na Red Hat](#passo-2-criar-conta-desenvolvedor-na-red-hat)
-5. [Passo 3 — Baixar a imagem RHEL 10.2 para WSL2](#passo-3-baixar-a-imagem-rhel-102-para-wsl2)
-6. [Passo 4 — Importar a imagem para o WSL2](#passo-4-importar-a-imagem-para-o-wsl2)
-7. [Passo 5 — Registrar o sistema na Red Hat Subscription Manager](#passo-5-registrar-o-sistema-na-red-hat-subscription-manager)
-8. [Passo 6 — Ver repositórios e atualizar com dnf](#passo-6-ver-repositórios-e-atualizar-com-dnf)
-9. [Passo 7 — Configurar usuário padrão no WSL](#passo-7-configurar-usuário-padrão-no-wsl)
-10. [Método alternativo — Image Builder (imagem customizada)](#método-alternativo--image-builder-imagem-customizada)
-11. [Análise Crítica (WSL2 vs. VirtualBox/VM)](#análise-crítica-wsl2-vs-virtualboxvm)
-12. [Galeria das 12 Capturas Reais](#galeria-das-12-capturas-reais)
-13. [Referências e Fontes Oficiais](#referências-e-fontes-oficiais)
+1. [1. Contexto Técnico](#1-contexto-técnico)
+2. [2. Passo a Passo Manual](#2-passo-a-passo-manual)
+3. [3. Análise Crítica (WSL2 vs. VirtualBox/VM)](#3-análise-crítica-wsl2-vs-virtualboxvm)
+4. [4. Checagem Final de Auditoria](#4-checagem-final-de-auditoria)
+5. [Galeria das 12 Capturas Reais](#galeria-das-12-capturas-reais)
+6. [Referências e Fontes Oficiais](#referências-e-fontes-oficiais)
 
 ---
 
-## Visão Geral
+## 1. Contexto Técnico
 
 Este laboratório documenta a instalação do **Red Hat Enterprise Linux (RHEL) 10.2** rodando nativamente no **Windows Subsystem for Linux 2 (WSL2)**, utilizando a assinatura gratuita para desenvolvedores individuais da Red Hat. O objetivo é ter um ambiente Linux corporativo real, com acesso aos repositórios oficiais via `dnf`, para estudos de administração Linux, automação de infraestrutura e preparação para certificações (RHCSA).
 
@@ -76,7 +69,9 @@ graph TD
 
 ---
 
-## Pré-requisitos
+## 2. Passo a Passo Manual
+
+### Pré-requisitos
 
 | Item | Detalhe |
 |------|---------|
@@ -416,13 +411,28 @@ O processo:
 
 ---
 
-## Análise Crítica (WSL2 vs. VirtualBox/VM)
+## 3. Análise Crítica (WSL2 vs. VirtualBox/VM)
 
 Rodar o RHEL 10.2 no WSL2 oferece velocidade e praticidade excepcionais para estudo diário, mas exige clareza sobre os limites arquiteturais do ambiente:
 
 - **O que o WSL2 entrega com fidelidade:** *userland* oficial do RHEL (`dnf`, `rpm`, `subscription-manager`, `systemd`, Podman, Bash e ferramentas de automação) com inicialização em segundos e baixo consumo de RAM.
 - **Onde o WSL2 não substitui uma VM ou bare-metal:** o WSL2 utiliza o **kernel Linux da Microsoft**, não o kernel oficial do RHEL. Por isso, não é o ambiente adequado para praticar **módulos de kernel**, **SELinux em modo `enforcing` completo**, **particionamento LVM/XFS em discos reais** ou **bootloader (GRUB)**.
 - **Lab complementar:** para praticar ciclo de boot completo, kernel nativo, rede e `cloud-init`, utilize o repositório irmão [lab-al2023-virtualbox](https://github.com/AlexRabelo/lab-al2023-virtualbox).
+
+---
+
+## 4. Checagem Final de Auditoria
+
+Após reiniciar (`wsl --terminate RHEL-10.2`), execute o script de auditoria ou valide manualmente:
+
+```bash
+bash /mnt/c/WSL/wsl2-enterprise-linux-lab/scripts/check-wsl-el.sh
+
+cat /etc/redhat-release
+ps -p 1 -o pid,comm
+sudo subscription-manager status
+sudo dnf repolist
+```
 
 ---
 

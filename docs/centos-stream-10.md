@@ -98,7 +98,7 @@ wsl -d centos-stream10
 
 ---
 
-## 4. Lições Aprendidas & Troubleshooting de Imagens OCI
+## 3. Lições Aprendidas & Troubleshooting de Imagens OCI
 
 Durante a validação deste laboratório, foram diagnosticados três comportamentos específicos de imagens mínimas de contêiner (`quay.io/centos/centos:stream10`):
 
@@ -114,7 +114,7 @@ Durante a validação deste laboratório, foram diagnosticados três comportamen
 
 ---
 
-## 5. Checagem Final de Auditoria
+## 4. Checagem Final de Auditoria
 
 Após reiniciar (`wsl --terminate centos-stream10`), execute o script de auditoria ou valide manualmente:
 

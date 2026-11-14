@@ -6,7 +6,7 @@ Guia prático e manual para provisionar e validar o **Amazon Linux 2027 (AL2027 
 
 ---
 
-## Contexto Técnico
+## 1. Contexto Técnico
 
 O **Amazon Linux 2027 (AL2027)** é a próxima geração da família Amazon Linux mantida pela AWS (também derivada do ecossistema **Fedora** / RPM / `dnf`), atualmente disponibilizada em **Preview** via CDN oficial da AWS (`cdn-al2027.amazonlinux.com`) para validação antecipada de pacotes e compatibilidade antes do lançamento geral (GA).
 
@@ -14,7 +14,7 @@ O **Amazon Linux 2027 (AL2027)** é a próxima geração da família Amazon Linu
 
 ---
 
-## 1. Passo a Passo Manual
+## 2. Passo a Passo Manual
 
 ### Etapa 1: Baixar e converter `.docker.tar.xz` para `rootfs.tar` (Ubuntu WSL 2)
 
@@ -113,7 +113,7 @@ wsl -d amazonlinux-2027
 
 ---
 
-## 2. Troubleshooting Validado na Prática
+## 3. Troubleshooting Validado na Prática
 
 * **Erros de locale (`setlocale: LC_ALL: cannot change locale`) na inicialização:** imagens OCI mínimas trazem apenas `C.UTF-8` e omitem pacotes de idioma, gerando avisos quando o WSL/SSH herda `en_US.UTF-8` ou `pt_BR.UTF-8`. A solução validada no AL2027 Preview é instalar:
   ```bash
@@ -122,7 +122,7 @@ wsl -d amazonlinux-2027
 
 ---
 
-## 3. Checagem Final de Validação
+## 4. Checagem Final de Auditoria
 
 Com o `systemd` ativo e `/mnt/c` montado, execute o script de auditoria:
 
