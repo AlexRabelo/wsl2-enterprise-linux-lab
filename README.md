@@ -99,7 +99,15 @@ docker export temp-al2023 -o /mnt/c/WSL/amazonlinux-2023/rootfs.tar
 docker rm temp-al2023
 ```
 
-**Amazon Linux 2027 (Preview):** siga o guia [docs/amazon-linux-2027-preview.md](docs/amazon-linux-2027-preview.md) (usa `docker load` no `.docker.tar.xz`).
+**Amazon Linux 2027 (Preview):**
+```bash
+mkdir -p /mnt/c/WSL/amazonlinux-2027/disk
+curl -fsSLO https://cdn-al2027.amazonlinux.com/os-images/2027.0.20261109.0/container/al2027-preview-container-2027.0.20261109.0-x86_64.docker.tar.xz
+LOADED_IMAGE=$(docker load -i al2027-preview-container-2027.0.20261109.0-x86_64.docker.tar.xz | awk '/Loaded image/{print $NF}')
+docker create --name temp-al2027 "$LOADED_IMAGE"
+docker export temp-al2027 -o /mnt/c/WSL/amazonlinux-2027/rootfs.tar
+docker rm temp-al2027
+```
 
 ### Etapa 2 — Importar no WSL 2 (PowerShell)
 
