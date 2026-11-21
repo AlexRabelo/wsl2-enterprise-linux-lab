@@ -278,8 +278,6 @@ rhc connect --organization ORG_ID --activation-key KEY
 subscription-manager status
 ```
 
-![Status do subscription-manager: Registered](../assets/imgs/rhel-10/subscription-manager-status.png)
-
 Saída esperada:
 
 ```output
@@ -288,6 +286,10 @@ Saída esperada:
 +-------------------------------------------+
 Overall Status: Registered
 ```
+
+Você também pode confirmar o host registrado diretamente no **Red Hat Hybrid Cloud Console** (*Inventory → Systems*):
+
+![Sistema registrado no Red Hat Hybrid Cloud Console](../assets/imgs/rhel-10/subscription-manager-status.png)
 
 Ou com `rhc`:
 
@@ -451,7 +453,7 @@ Todas as etapas deste guia foram executadas e validadas com capturas reais em `a
 | 06 | Prompt inicial do RHEL 10.2 | [`wsl-rhel-prompt.png`](../assets/imgs/rhel-10/wsl-rhel-prompt.png) |
 | 07 | Validação `/etc/redhat-release` | [`cat-redhat-release.png`](../assets/imgs/rhel-10/cat-redhat-release.png) |
 | 08 | Registro `subscription-manager` | [`subscription-manager-register.png`](../assets/imgs/rhel-10/subscription-manager-register.png) |
-| 09 | Status `Registered` confirmado | [`subscription-manager-status.png`](../assets/imgs/rhel-10/subscription-manager-status.png) |
+| 09 | Sistema registrado no Hybrid Cloud Console | [`subscription-manager-status.png`](../assets/imgs/rhel-10/subscription-manager-status.png) |
 | 10 | Repositórios `BaseOS` e `AppStream` | [`dnf-repolist.png`](../assets/imgs/rhel-10/dnf-repolist.png) |
 | 11 | Atualização com `dnf update` | [`dnf-update.png`](../assets/imgs/rhel-10/dnf-update.png) |
 | 12 | Ambiente final pronto para uso | [`final-wsl-terminal.png`](../assets/imgs/rhel-10/final-wsl-terminal.png) |
