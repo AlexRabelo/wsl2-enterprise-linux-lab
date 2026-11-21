@@ -8,9 +8,9 @@ Guia prático e manual para provisionar e validar o **Amazon Linux 2027 (AL2027 
 
 ## 1. Contexto Técnico
 
-O **Amazon Linux 2027 (AL2027)** é a próxima geração da família Amazon Linux mantida pela AWS (também derivada do ecossistema **Fedora** / RPM / `dnf`), atualmente disponibilizada em **Preview** via CDN oficial da AWS (`cdn-al2027.amazonlinux.com`) para validação antecipada de pacotes e compatibilidade antes do lançamento geral (GA).
+O **Amazon Linux 2027 (AL2027)** é a próxima geração da família Amazon Linux mantida pela AWS (também derivada do ecossistema **Fedora** / RPM), em **Public Preview** desde setembro de 2026 para validação antecipada antes do lançamento geral (GA). Entre as novidades arquiteturais desta geração estão o **`dnf5`** como gerenciador de pacotes padrão, **OpenSSL 3.5 + AWS-LC** e **SELinux em modo `enforcing` por padrão** em instâncias EC2 (no WSL 2, o user space roda sobre o kernel mantido pela Microsoft).
 
-- **Documentação e fontes oficiais:** [amazonlinux.com](https://amazonlinux.com/) · [CDN AL2027 Preview](https://cdn-al2027.amazonlinux.com/) · [Microsoft WSL Custom Distro](https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro)
+- **Documentação e fontes oficiais:** [amazonlinux.com](https://amazonlinux.com/) · [CDN AL2027 Preview](https://cdn-al2027.amazonlinux.com/) · [ECR Public `amazonlinux:2027`](https://gallery.ecr.aws/amazonlinux/amazonlinux) · [Microsoft WSL Custom Distro](https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro)
 
 ---
 
@@ -18,7 +18,7 @@ O **Amazon Linux 2027 (AL2027)** é a próxima geração da família Amazon Linu
 
 ### Etapa 1: Baixar e converter `.docker.tar.xz` para `rootfs.tar` (Ubuntu WSL 2)
 
-> **Atenção:** o arquivo `.docker.tar.xz` é um pacote de camadas Docker (`manifest.json` + blobs), **não** um `rootfs.tar` direto. Por isso é necessário fazer `docker load` seguido de `docker export`.
+> **Atenção:** o arquivo `.docker.tar.xz` é um pacote de camadas Docker (`manifest.json` + blobs), **não** um `rootfs.tar` direto. Por isso é necessário fazer `docker load` seguido de `docker export`. Como alternativa, você também pode extrair diretamente da tag sempre atualizada no ECR Public (`public.ecr.aws/amazonlinux/amazonlinux:2027`), evitando URLs com timestamp de build.
 
 ```bash
 mkdir -p /mnt/c/WSL/amazonlinux-2027/disk
@@ -31,6 +31,7 @@ LOADED_IMAGE=$(docker load -i al2027-preview-container-2027.0.20261109.0-x86_64.
 docker create --name temp-al2027 "$LOADED_IMAGE"
 docker export temp-al2027 -o /mnt/c/WSL/amazonlinux-2027/rootfs.tar
 docker rm temp-al2027
+rm -f al2027-preview-container-2027.0.20261109.0-x86_64.docker.tar.xz SHA256SUMS
 ```
 
 ### Etapa 2: Importar no WSL 2 (PowerShell)
@@ -55,16 +56,14 @@ Execute os comandos abaixo linha a linha dentro do AL2027:
 printf "# /etc/fstab: static file system information for WSL 2\n" > /etc/fstab
 chmod 644 /etc/fstab
 
-# 2. Atualiza pacotes e instala base + systemd + langpacks (evita erros de locale na inicialização)
+# 2. Atualiza pacotes e instala base mínima WSL 2 + systemd + langpacks (evita erros de locale)
 dnf update -y
 dnf install -y --allowerasing \
-  systemd sudo passwd shadow-utils bash-completion vim-enhanced \
+  systemd sudo passwd shadow-utils \
   glibc-langpack-en glibc-langpack-pt \
-  which less hostname time lsof rsync man-db \
-  procps-ng file tree zip unzip bzip2 xz patch curl \
-  iproute iputils bind-utils net-tools openssh-server openssh-clients \
-  wget tcpdump traceroute nmap-ncat chrony cronie logrotate \
-  e2fsprogs xfsprogs dosfstools parted lvm2 acl policycoreutils
+  bash-completion vim-enhanced curl which less \
+  procps-ng iproute iputils openssh-server openssh-clients \
+  tar gzip unzip
 
 # 3. Cria usuário padrão com sudo (grupo wheel) e diretório .ssh
 useradd -m -G wheel -s /bin/bash labuser
@@ -103,6 +102,8 @@ default=labuser
 EOF
 exit
 ```
+
+> **Nota sobre autenticação SSH (Senha vs. Chave):** Como este é um laboratório estritamente local (`127.0.0.1`), `PasswordAuthentication yes` está habilitado para facilitar os primeiros testes. Porém, o ideal em ambientes reais — e prática recomendada desde já — é utilizar **autenticação por chave SSH** (`ssh-keygen` + `authorized_keys`), tema que será abordado futuramente neste projeto. Consulte a documentação oficial do OpenSSH: [OpenSSH Manual](https://www.openssh.com/manual.html) · [`ssh-keygen(1)`](https://man.openbsd.org/ssh-keygen.1) · [`sshd(8)` — `authorized_keys`](https://man.openbsd.org/sshd.8#AUTHORIZED_FILES).
 
 ### Etapa 4: Reiniciar para ativar `systemd` e `/mnt/c` (PowerShell)
 

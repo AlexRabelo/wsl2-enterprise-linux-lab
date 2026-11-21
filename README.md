@@ -4,9 +4,10 @@
 [![RHEL 10](https://img.shields.io/badge/RHEL-10.2-EE0000?logo=redhat&logoColor=white)](https://developers.redhat.com/products/rhel/download)
 [![CentOS Stream 10](https://img.shields.io/badge/CentOS%20Stream-10-262577?logo=centos&logoColor=white)](https://www.centos.org/centos-stream/)
 [![Amazon Linux 2023](https://img.shields.io/badge/Amazon%20Linux-2023-FF9900?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/linux/amazon-linux-2023/)
+[![Amazon Linux 2027 Preview](https://img.shields.io/badge/Amazon%20Linux-2027%20Preview-FF9900?logo=amazon-aws&logoColor=white)](https://amazonlinux.com/)
 [![Shell Script](https://img.shields.io/badge/Bash-Audit-4EAA25?logo=gnu-bash&logoColor=white)](#)
 
-Procedimento **CLI-First** documentado passo a passo para provisionar distribuições **Enterprise Linux** dentro do **Windows Subsystem for Linux (WSL 2)** — cobrindo desde a imagem oficial `.wsl` com **Red Hat Developer Subscription** (**RHEL 10.2**) até a extração de imagens OCI via Docker (**CentOS Stream 10**, **Amazon Linux 2023** e **AL2027 Preview**), com script único de checagem final.
+Guia prático e **CLI-First** criado para ensinar **profissionais de TI e estudantes** a montar um laboratório local no **Windows Subsystem for Linux (WSL 2)** utilizando distribuições **Enterprise Linux que não são distribuídas pela Microsoft no catálogo padrão do WSL (`wsl --list --online`)** — cobrindo desde a imagem oficial `.wsl` com **Red Hat Developer Subscription** (**RHEL 10.2**) até a extração de imagens OCI via Docker/Podman (**CentOS Stream 10**, **Amazon Linux 2023** e **AL2027 Preview**), com instalação mínima de pacotes e script único de checagem final.
 
 ---
 
@@ -22,14 +23,14 @@ Procedimento **CLI-First** documentado passo a passo para provisionar distribui�
                                                                  v
 +-----------------------+   Configuração Manual +    +-----------------------+
 |  Instância Operacional| <------------------------- |   Disco Virtual WSL   |
-| systemd + SSHD + LPIC |     check-wsl-el.sh        |     (ext4.vhdx)       |
+| systemd + SSHD + Base |     check-wsl-el.sh        |     (ext4.vhdx)       |
 +-----------------------+                            +-----------------------+
 ```
 
-1. **Extração OCI (`Docker` -> `rootfs.tar`):** Utiliza uma instância auxiliar do WSL 2 com Docker para baixar a imagem oficial limpa e exportar o sistema de arquivos.
+1. **Extração OCI (`Docker`/`Podman` -> `rootfs.tar`):** Utiliza uma instância auxiliar do WSL 2 com Docker (ou Podman) para baixar a imagem oficial limpa e exportar o sistema de arquivos.
 2. **Registro Nativo (`wsl --import`):** Cria o disco virtual `ext4.vhdx` dedicado no host Windows 11.
-3. **Configuração Interna Manual:** Como imagens OCI mínimas sobem sem `/etc/fstab`, `systemd`, usuário comum ou `sshd` (e sem `/mnt/c` montado até corrigir o `fstab`), a configuração é executada linha a linha dentro de `wsl -d <distro> -u root`.
-4. **Checagem Final (`scripts/check-wsl-el.sh`):** Script único de auditoria (somente leitura) para validar `os-release`, `/etc/fstab`, `/mnt/c`, `systemd` como PID 1, grupo `wheel`, `/etc/wsl.conf` e `sshd`.
+3. **Configuração Interna Manual:** Como imagens OCI mínimas sobem sem `/etc/fstab`, `systemd`, usuário comum ou `sshd` (e sem `/mnt/c` montado até corrigir o `fstab`), a configuração mínima é executada passo a passo dentro de `wsl -d <distro> -u root`.
+4. **Checagem Final (`scripts/check-wsl-el.sh`):** Script único de auditoria (somente leitura) para validar `os-release`, `/etc/fstab`, `/mnt/c`, `systemd` como PID 1, usuário no grupo `wheel`, `sudo`, `/etc/wsl.conf` e `sshd`.
 
 ---
 
@@ -37,13 +38,13 @@ Procedimento **CLI-First** documentado passo a passo para provisionar distribui�
 
 ```text
 wsl2-enterprise-linux-lab/
-├── README.md                        # Visão geral, ecossistema, LPIC-1 e guia rápido
+├── README.md                        # Visão geral, ecossistema, .wslconfig e guia rápido
 ├── assets/imgs/rhel-10/             # 12 capturas reais do guia RHEL 10.2
 ├── docs/
 │   ├── rhel-10.md                   # Guia completo RHEL 10.2 (.wsl + Subscription Manager)
-│   ├── centos-stream-10.md          # Passo a passo completo e matriz LPIC-1 (CentOS Stream 10)
+│   ├── centos-stream-10.md          # Passo a passo completo e instalação mínima (CentOS Stream 10)
 │   ├── amazon-linux-2023.md         # Passo a passo completo, /etc/fstab e AWS CLI v2 (AL2023)
-│   └── amazon-linux-2027-preview.md # Passo a passo completo do AL2027 Preview (.docker.tar.xz)
+│   └── amazon-linux-2027-preview.md # Passo a passo completo do AL2027 Preview (.docker.tar.xz / ECR)
 └── scripts/
     └── check-wsl-el.sh              # Script único de checagem final da instância WSL 2
 ```
@@ -85,8 +86,27 @@ A escolha de usar ou não o Docker depende exclusivamente de como cada distribui
 
 ## Pré-requisitos
 
-* **Windows 11** com **WSL 2** habilitado (`wsl --update` atualizado).
-* Uma distribuição WSL auxiliar com **Docker Engine** ativo (ex: `Ubuntu-26.04`), utilizada apenas durante a extração do `rootfs.tar`.
+* **Windows 11** (ou Windows 10 2004+) com **WSL 2** habilitado (`wsl --update` atualizado).
+* Uma distribuição WSL auxiliar com **Docker Engine** (ou **Podman**) ativo (ex: `Ubuntu-26.04`), utilizada apenas durante a extração do `rootfs.tar`.
+* Repositório clonado em `C:\WSL\wsl2-enterprise-linux-lab` (ou ajuste o caminho ao executar `scripts/check-wsl-el.sh`).
+* **Hardware para RHEL 10 / CentOS Stream 10:** processador compatível com **`x86-64-v3`** (suporte a instruções AVX/AVX2).
+
+---
+
+## Configuração Global Recomendada (`.wslconfig`)
+
+Para ambientes de laboratório em notebooks/estações corporativas (VPNs, proxies e múltiplos serviços locais), recomenda-se criar ou ajustar o arquivo `%UserProfile%\.wslconfig` no Windows:
+
+```ini
+[wsl2]
+memory=8GB
+processors=4
+networkingMode=mirrored
+dnsTunneling=true
+autoProxy=true
+```
+
+> **Dica:** Após alterar o `.wslconfig`, aplique as mudanças com `wsl --shutdown` no PowerShell. O modo `mirrored` evita conflitos de rede com VPNs e compartilha o `localhost` entre Windows e WSL 2.
 
 ---
 
@@ -150,6 +170,11 @@ Dentro da instância (já com `/mnt/c` montado):
 bash /mnt/c/WSL/wsl2-enterprise-linux-lab/scripts/check-wsl-el.sh labuser 2223
 ```
 
+---
+
+## Licença
+
+Este projeto está licenciado sob a licença [MIT](LICENSE).
 
 ---
 

@@ -7,10 +7,10 @@ Laboratório de administração Linux com Red Hat Enterprise Linux no Windows Su
 
 ## Índice
 
-1. [1. Contexto Técnico](#1-contexto-técnico)
-2. [2. Passo a Passo Manual](#2-passo-a-passo-manual)
-3. [3. Análise Crítica (WSL2 vs. VirtualBox/VM)](#3-análise-crítica-wsl2-vs-virtualboxvm)
-4. [4. Checagem Final de Auditoria](#4-checagem-final-de-auditoria)
+1. [Contexto Técnico](#1-contexto-técnico)
+2. [Passo a Passo Manual](#2-passo-a-passo-manual)
+3. [Análise Crítica (WSL2 vs. VirtualBox/VM)](#3-análise-crítica-wsl2-vs-virtualboxvm)
+4. [Checagem Final de Auditoria](#4-checagem-final-de-auditoria)
 5. [Galeria das 12 Capturas Reais](#galeria-das-12-capturas-reais)
 6. [Referências e Fontes Oficiais](#referências-e-fontes-oficiais)
 
@@ -77,6 +77,7 @@ graph TD
 |------|---------|
 | Sistema operacional | Windows 10 (versão 2004+) ou Windows 11 |
 | Virtualização | Habilitada na BIOS/UEFI (Intel VT-x ou AMD-V) |
+| Processador | Arquitetura **`x86-64-v3`** (instruções AVX/AVX2 obrigatórias no RHEL 10) |
 | WSL | Habilitado no Windows (funcionalidade "Subsistema do Windows para Linux") |
 | Conta Red Hat | Cadastro gratuito no [Red Hat Developer Program](https://developers.redhat.com/register) |
 | Espaço em disco | Aprox. 200 MB para a imagem WSL + espaço para pacotes instalados |
@@ -423,10 +424,10 @@ Rodar o RHEL 10.2 no WSL2 oferece velocidade e praticidade excepcionais para est
 
 ## 4. Checagem Final de Auditoria
 
-Após reiniciar (`wsl --terminate RHEL-10.2`), execute o script de auditoria ou valide manualmente:
+Após reiniciar (`wsl --terminate RHEL-10.2`), execute o script de auditoria (informando o usuário `demo` e `--no-ssh` caso não tenha configurado o `sshd` nesta instância) ou valide manualmente:
 
 ```bash
-bash /mnt/c/WSL/wsl2-enterprise-linux-lab/scripts/check-wsl-el.sh
+bash /mnt/c/WSL/wsl2-enterprise-linux-lab/scripts/check-wsl-el.sh demo --no-ssh
 
 cat /etc/redhat-release
 ps -p 1 -o pid,comm
@@ -438,7 +439,7 @@ sudo dnf repolist
 
 ## Galeria das 12 Capturas Reais
 
-Todas as etapas deste guia foram executadas e validadas com capturas reais em `assets/imgs/lab-rhel-wsl2/`:
+Todas as etapas deste guia foram executadas e validadas com capturas reais em `assets/imgs/rhel-10/`:
 
 | # | Etapa | Captura |
 |---|---|---|

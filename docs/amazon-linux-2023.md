@@ -48,24 +48,24 @@ chmod 644 /etc/fstab
 dnf update -y
 
 # A flag --allowerasing resolve o conflito nativo entre curl-minimal e curl no AL2023
+# Lista mínima WSL 2 + awscli-2 (específico AWS)
 dnf install -y --allowerasing \
-  systemd sudo passwd shadow-utils bash-completion vim-enhanced curl which less \
-  procps-ng iproute iputils bind-utils net-tools openssh-server openssh-clients \
-  man-db file tree zip unzip bzip2 xz patch rsync lsof time hostname \
-  wget tcpdump traceroute nmap-ncat chrony cronie at logrotate \
-  e2fsprogs xfsprogs dosfstools parted lvm2 acl policycoreutils \
-  awscli-2
+  systemd sudo passwd shadow-utils \
+  glibc-langpack-en glibc-langpack-pt \
+  bash-completion vim-enhanced curl which less \
+  procps-ng iproute iputils openssh-server openssh-clients \
+  tar gzip unzip awscli-2
 
 # Criação do usuário padrão no grupo wheel
 useradd -m -G wheel -s /bin/bash labuser
 passwd labuser
 
-# Configuração do OpenSSH Server na porta 2223
+# Configuração do OpenSSH Server local na porta 2223
 ssh-keygen -A
 mkdir -p /etc/ssh/sshd_config.d /run/sshd
-cat <<EOF > /etc/ssh/sshd_config.d/99-wsl-remote.conf
+cat <<'EOF' > /etc/ssh/sshd_config.d/99-wsl-remote.conf
 Port 2223
-ListenAddress 0.0.0.0
+ListenAddress 127.0.0.1
 PubkeyAuthentication yes
 PasswordAuthentication yes
 PermitRootLogin no
@@ -75,10 +75,12 @@ EOF
 sshd -t && systemctl enable sshd
 ```
 
+> **Nota sobre autenticação SSH (Senha vs. Chave):** Como este é um laboratório estritamente local (`127.0.0.1`), `PasswordAuthentication yes` está habilitado para facilitar os primeiros testes. Porém, o ideal em ambientes reais — e prática recomendada desde já — é utilizar **autenticação por chave SSH** (`ssh-keygen` + `authorized_keys`), tema que será abordado futuramente neste projeto. Consulte a documentação oficial do OpenSSH: [OpenSSH Manual](https://www.openssh.com/manual.html) · [`ssh-keygen(1)`](https://man.openbsd.org/ssh-keygen.1) · [`sshd(8)` — `authorized_keys`](https://man.openbsd.org/sshd.8#AUTHORIZED_FILES).
+
 ### Etapa 4: Configuração do `/etc/wsl.conf` e Reinicialização
 
 ```bash
-cat <<EOF > /etc/wsl.conf
+cat <<'EOF' > /etc/wsl.conf
 [boot]
 systemd=true
 

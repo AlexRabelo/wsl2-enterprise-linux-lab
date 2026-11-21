@@ -1,16 +1,18 @@
 # Implantação e Auditoria do CentOS Stream 10 no WSL 2
 
-Guia técnico detalhado para provisionar o **CentOS Stream 10 ("Coughlan")** no **Windows Subsystem for Linux (WSL 2)** a partir de sua imagem oficial OCI (`quay.io/centos/centos:stream10`), incluindo configuração de `systemd`, **OpenSSH Server**, criação de usuário administrativo e adequação ao perfil *Minimal Install* / certificação **LPIC-1**.
+Guia técnico detalhado para provisionar o **CentOS Stream 10 ("Coughlan")** no **Windows Subsystem for Linux (WSL 2)** a partir de sua imagem oficial OCI (`quay.io/centos/centos:stream10`), incluindo configuração de `systemd`, **OpenSSH Server**, criação de usuário administrativo e **instalação mínima** de pacotes essenciais para laboratório local.
 
 ---
 
 ## 1. Contexto Técnico
 
-Na árvore do ecossistema Red Hat, o **CentOS Stream 10 ("Coughlan")** ocupa a posição **midstream** entre o **Fedora** (*upstream*, onde as inovações surgem) e o **Red Hat Enterprise Linux 10** (*downstream*, versão corporativa estável). Tudo o que entra no CentOS Stream 10 compõe o próximo *minor release* do RHEL 10 (Kernel 6.12, arquitetura base `x86-64-v3`).
+Na árvore do ecossistema Red Hat, o **CentOS Stream 10 ("Coughlan")** ocupa a posição **midstream** entre o **Fedora** (*upstream*, onde as inovações surgem) e o **Red Hat Enterprise Linux 10** (*downstream*, versão corporativa estável). Tudo o que entra no CentOS Stream 10 compõe o próximo *minor release* do RHEL 10 (Kernel 6.12, arquitetura base **`x86-64-v3`** — requer CPU com instruções AVX/AVX2).
 
-Como não há pacote oficial da distribuição no catálogo online da Microsoft Store (`wsl --list --online`), a implantação mais limpa e auditável consiste em extrair o sistema de arquivos (`rootfs.tar`) da imagem oficial mantida pela Red Hat/CentOS no Quay.io e importá-lo como disco virtual dedicado (`ext4.vhdx`) no WSL 2.
+Como não há pacote oficial da distribuição no catálogo online da Microsoft Store (`wsl --list --online`), a implantação didática mais limpa e auditável consiste em extrair o sistema de arquivos (`rootfs.tar`) da imagem oficial mantida pela Red Hat/CentOS no Quay.io e importá-lo como disco virtual dedicado (`ext4.vhdx`) no WSL 2.
 
-- **Documentação oficial:** [centos.org/centos-stream](https://www.centos.org/centos-stream/) · [docs.centos.org](https://docs.centos.org/) 
+> **Alternativa sem Docker (`.wsl` do CentOS SIG):** O **CentOS Alternative Images SIG** também publica imagens `.wsl` prontas para CentOS Stream 10 em [sigs.centos.org/altimages/wsl](https://sigs.centos.org/altimages/wsl/), que podem ser instaladas diretamente via `wsl --install --from-file <arquivo.wsl> --name centos-stream10` (WSL 2.4.8+). Neste guia, mantemos o fluxo OCI para ensinar o processo universal de importação.
+
+- **Documentação oficial:** [centos.org/centos-stream](https://www.centos.org/centos-stream/) · [docs.centos.org](https://docs.centos.org/) · [CentOS SIG WSL](https://sigs.centos.org/altimages/wsl/)
 
 ---
 
@@ -42,27 +44,27 @@ Acesse a instância como `root`:
 wsl -d centos-stream10 -u root
 ```
 
-Instale manualmente os grupos essenciais dentro da instância:
+Instale manualmente a **lista de pacotes para instalação mínima no WSL 2** dentro da instância:
 
 ```bash
 dnf update -y
-dnf install -y \
-  systemd sudo passwd shadow-utils bash-completion vim-enhanced curl which less \
-  procps-ng iproute iputils bind-utils net-tools openssh-server openssh-clients \
-  man-db man-pages info file tree zip unzip bzip2 xz patch rsync lsof time hostname \
-  wget tcpdump traceroute nmap-ncat chrony cronie at rsyslog logrotate \
-  e2fsprogs xfsprogs dosfstools parted lvm2 acl policycoreutils policycoreutils-python-utils
+dnf install -y --allowerasing \
+  systemd sudo passwd shadow-utils \
+  glibc-langpack-en glibc-langpack-pt \
+  bash-completion vim-enhanced curl which less \
+  procps-ng iproute iputils openssh-server openssh-clients \
+  tar gzip unzip
 
 # Criação do usuário com privilégios sudo (wheel)
 useradd -m -G wheel -s /bin/bash labuser
 passwd labuser
 
-# Geração das chaves de host do OpenSSH e configuração na porta 2222
+# Geração das chaves de host do OpenSSH e configuração local na porta 2222
 ssh-keygen -A
 mkdir -p /etc/ssh/sshd_config.d /run/sshd
-cat <<EOF > /etc/ssh/sshd_config.d/99-wsl-remote.conf
+cat <<'EOF' > /etc/ssh/sshd_config.d/99-wsl-remote.conf
 Port 2222
-ListenAddress 0.0.0.0
+ListenAddress 127.0.0.1
 PubkeyAuthentication yes
 PasswordAuthentication yes
 PermitRootLogin no
@@ -72,10 +74,12 @@ EOF
 sshd -t && systemctl enable sshd
 ```
 
+> **Nota sobre autenticação SSH (Senha vs. Chave):** Como este é um laboratório estritamente local (`127.0.0.1`), `PasswordAuthentication yes` está habilitado para facilitar os primeiros testes. Porém, o ideal em ambientes reais — e prática recomendada desde já — é utilizar **autenticação por chave SSH** (`ssh-keygen` + `authorized_keys`), tema que será abordado futuramente neste projeto. Consulte a documentação oficial do OpenSSH: [OpenSSH Manual](https://www.openssh.com/manual.html) · [`ssh-keygen(1)`](https://man.openbsd.org/ssh-keygen.1) · [`sshd(8)` — `authorized_keys`](https://man.openbsd.org/sshd.8#AUTHORIZED_FILES).
+
 ### Etapa 4: Configuração do `/etc/wsl.conf` e Reinicialização
 
 ```bash
-cat <<EOF > /etc/wsl.conf
+cat <<'EOF' > /etc/wsl.conf
 [boot]
 systemd=true
 
