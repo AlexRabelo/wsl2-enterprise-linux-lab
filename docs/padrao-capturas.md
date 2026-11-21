@@ -43,12 +43,12 @@ Guia de referência para manter todas as capturas de tela do repositório com **
 | Arquivo | O que ajustar na recaptura |
 |---|---|
 | `wsl-list-verbose.png` | Aumentar janela ao padrão (`1080px`), remover borda ciano e usar `C:\WSL>` |
-| `wsl-import-command.png` | Atualizar para `rhel-10.2-x86_64-wsl2.wsl` e ocultar `C:\Users\vialo` |
+| `wsl-import-command.png` | Atualizar para `rhel-10.2-x86_64-wsl2.wsl` e ocultar caminho de usuário do Windows |
 | `wsl-list-after-import.png` | Aumentar janela ao padrão (`1080px`) e remover borda ciano |
-| `wsl-rhel-prompt.png` | Hostname `rhel-10` e diretório `cd /` ou `cd ~` (sem `vialo` / `NoteSamSung`) |
+| `wsl-rhel-prompt.png` | Hostname `rhel-10` e diretório `cd /` ou `cd ~` (sem usuário/hostname pessoal) |
 | `cat-redhat-release.png` | Atualizar para RHEL `10.2`, hostname `rhel-10` e janela no tamanho padrão |
 | `subscription-manager-register.png` | Hostname `rhel-10`, mascarar username/UUID e janela no tamanho padrão |
 | `subscription-manager-status.png` | Modo anônimo/recorte limpo sem perfil pessoal e com hostname `rhel-10` |
 | `dnf-repolist.png` | Hostname `rhel-10` e mascarar username/UUID |
 | `dnf-update.png` | Hostname `rhel-10` |
-| `final-wsl-terminal.png` | Hostname `rhel-10`, usuário `demo` em `~` (sem `vialo`) e janela no tamanho padrão |
+| `final-wsl-terminal.png` | Hostname `rhel-10`, usuário `demo` em `~` (sem usuário/hostname pessoal) e janela no tamanho padrão |
