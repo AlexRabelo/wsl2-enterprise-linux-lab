@@ -12,3 +12,7 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# Índice e skills de agente de IA (não versionar)
+.gitnexus/
+.claude/

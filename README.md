@@ -70,6 +70,19 @@ Fedora (Upstream — inovação rápida)
 
 ---
 
+## Quando Usar o Docker para Gerar a Imagem WSL
+
+A escolha de usar ou não o Docker depende exclusivamente de como cada distribuição é disponibilizada pelo fabricante. Quando há uma imagem oficial `.wsl` pronta para importação — como no caso do Red Hat Enterprise Linux 10.2 via Red Hat Developer Subscription — o Docker é desnecessário: basta baixar o pacote nativo e registrar diretamente com `wsl --import`. Por outro lado, distribuições que são oferecidas apenas como imagens OCI/container (CentOS Stream 10, Amazon Linux 2023 e Amazon Linux 2027 Preview) precisam do Docker apenas como ferramenta de extração, rodando em uma instância WSL auxiliar: a imagem é baixada, exportada como `rootfs.tar`, importada para o WSL 2 e o arquivo tar é imediatamente removido. Dessa forma, o Docker nunca permanece na instância final e serve somente para gerar o filesystem que será importado.
+
+| Distribuição | Forma de distribuição no WSL 2 | Usa Docker? | Origem |
+| :--- | :--- | :---: | :--- |
+| **Red Hat Enterprise Linux 10.2** | Imagem oficial `.wsl` + Red Hat Developer Subscription | Não | developers.redhat.com/rhel |
+| **CentOS Stream 10** | Extração OCI (`quay.io`) → `rootfs.tar` | Sim | `quay.io/centos/centos:stream10` |
+| **Amazon Linux 2023** | Extração OCI (`public.ecr.aws`) → `rootfs.tar` | Sim | `public.ecr.aws/amazonlinux/amazonlinux:2023` |
+| **Amazon Linux 2027 Preview** | `.docker.tar.xz` via CDN AWS → `rootfs.tar` | Sim | `cdn-al2027.amazonlinux.com` |
+
+---
+
 ## Pré-requisitos
 
 * **Windows 11** com **WSL 2** habilitado (`wsl --update` atualizado).
@@ -137,14 +150,6 @@ Dentro da instância (já com `/mnt/c` montado):
 bash /mnt/c/WSL/wsl2-enterprise-linux-lab/scripts/check-wsl-el.sh labuser 2223
 ```
 
----
-
-## Escopo de Estudo LPIC-1: WSL 2 vs. VM Completa (VirtualBox/VMware)
-
-| Domínio LPIC-1 | Ambiente Recomendado | Justificativa Técnica |
-| :--- | :--- | :--- |
-| **103** (GNU/Unix, Pipes, Regex, `sed`, `awk`), **102.5** (`rpm`/`dnf`), **104.5** (Permissões/ACLs), **107** (Usuários, `cron`, `at`), **109/110** (Rede & SSH) | **WSL 2 (Este Laboratório)** | Baixo consumo de RAM, inicialização instantânea e fidelidade total do *user-space* Enterprise Linux (CentOS 10, AL2023, AL2027). |
-| **101** (Hardware/Módulos Kernel), **102.1/102.2** (Particionamento real & GRUB2), **104.1-104.4** (`mkfs`, `fsck`, `mount`, LVM físico) e **SELinux Enforcing** | **Hypervisor Tipo 2 ([VirtualBox](https://github.com/AlexRabelo/lab-al2023-virtualbox) / VMware)** | O WSL 2 utiliza um kernel Linux mantido pela Microsoft sem dispositivos de bloco físicos expostos ao GRUB2 e sem SELinux ativo no kernel. |
 
 ---
 

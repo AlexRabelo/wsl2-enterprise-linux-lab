@@ -472,11 +472,4 @@ Todas as etapas deste guia foram executadas e validadas com capturas reais em `a
 
 
 ---
-
-## Padrão visual das imagens
-
-Todas as capturas de tela e o diagrama Mermaid deste guia seguem o padrão dark tecnológico (`#08090c`, `#22d3ee`, `#3b82f6`), dimensões 1200×675 (16:9) e borrado obrigatório de dados pessoais (PII) antes de publicar.
-
----
-
 *Transparência de IA: Este projeto foi estruturado e revisado com auxílio de ferramentas de IA e testado manualmente pelo autor.*
